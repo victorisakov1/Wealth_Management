@@ -126,33 +126,34 @@ pf_sharpe <- (((1+Pf_exp)^12)-1 - Risk_Free)/pf_sigma
 
 # in order to do this we need a benchmark that would be the NASDAQ 
 
+# Download the benchmark once and reuse it below
 Benchmark_returns <- monthlyReturn(getSymbols("^IXIC", auto.assign = F))
-Benchmark_sigma <- sd(monthlyReturn(getSymbols("^IXIC", auto.assign = F))[time_index:(time_index-11)])*sqrt(12) 
+Benchmark_sigma <- sd(Benchmark_returns[time_index:(time_index-11)])*sqrt(12) 
 
-Benchmark_Exp <- mean(monthlyReturn(getSymbols("^IXIC", auto.assign = F))[time_index:(time_index-11)])
+Benchmark_Exp <- mean(Benchmark_returns[time_index:(time_index-11)])
 Benchmark_Sharpe <-(((1+Benchmark_Exp)^12)-1 - Risk_Free)/Benchmark_sigma
 #te
 
 s1_te <- sd(joined_monthly_fisherpf$monthly.returns[time_index:(time_index-11)]
-             - monthlyReturn(getSymbols("^IXIC", auto.assign = F))[time_index:(time_index-11)]) * sqrt(12)
+             - Benchmark_returns[time_index:(time_index-11)]) * sqrt(12)
 s2_te <- sd(joined_monthly_fisherpf$monthly.returns.1[time_index:(time_index-11)]
-            - monthlyReturn(getSymbols("^IXIC", auto.assign = F))[time_index:(time_index-11)]) * sqrt(12)
+            - Benchmark_returns[time_index:(time_index-11)]) * sqrt(12)
 s3_te <- sd(joined_monthly_fisherpf$monthly.returns.2[time_index:(time_index-11)]
-            - monthlyReturn(getSymbols("^IXIC", auto.assign = F))[time_index:(time_index-11)]) * sqrt(12)
+            - Benchmark_returns[time_index:(time_index-11)]) * sqrt(12)
 s4_te <- sd(joined_monthly_fisherpf$monthly.returns.3[time_index:(time_index-11)]
-            - monthlyReturn(getSymbols("^IXIC", auto.assign = F))[time_index:(time_index-11)]) * sqrt(12)
+            - Benchmark_returns[time_index:(time_index-11)]) * sqrt(12)
 s5_te <- sd(joined_monthly_fisherpf$monthly.returns.4[time_index:(time_index-11)]
-            - monthlyReturn(getSymbols("^IXIC", auto.assign = F))[time_index:(time_index-11)]) * sqrt(12)
+            - Benchmark_returns[time_index:(time_index-11)]) * sqrt(12)
 s6_te <- sd(joined_monthly_fisherpf$monthly.returns.5[time_index:(time_index-11)]
-               - monthlyReturn(getSymbols("^IXIC", auto.assign = F))[time_index:(time_index-11)]) * sqrt(12)
+               - Benchmark_returns[time_index:(time_index-11)]) * sqrt(12)
 s7_te <- sd(joined_monthly_fisherpf$monthly.returns.6[time_index:(time_index-11)]
-           - monthlyReturn(getSymbols("^IXIC", auto.assign = F))[time_index:(time_index-11)]) * sqrt(12)
+           - Benchmark_returns[time_index:(time_index-11)]) * sqrt(12)
 s8_te <- sd(joined_monthly_fisherpf$monthly.returns.7[time_index:(time_index-11)]
-            - monthlyReturn(getSymbols("^IXIC", auto.assign = F))[time_index:(time_index-11)]) * sqrt(12)
+            - Benchmark_returns[time_index:(time_index-11)]) * sqrt(12)
 s9_te <- sd(joined_monthly_fisherpf$monthly.returns.8[time_index:(time_index-11)]
-            - monthlyReturn(getSymbols("^IXIC", auto.assign = F))[time_index:(time_index-11)]) * sqrt(12)
+            - Benchmark_returns[time_index:(time_index-11)]) * sqrt(12)
 s10_te <- sd(joined_monthly_fisherpf$monthly.returns.9[time_index:(time_index-11)]
-             - monthlyReturn(getSymbols("^IXIC", auto.assign = F))[time_index:(time_index-11)]) * sqrt(12)
+             - Benchmark_returns[time_index:(time_index-11)]) * sqrt(12)
 
 # Let's visualize everything in a table
 

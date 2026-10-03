@@ -1,0 +1,7 @@
+# Python packages for the Jupyter notebook
+jupyter
+numpy
+pandas
+matplotlib
+scipy
+hmmlearn
