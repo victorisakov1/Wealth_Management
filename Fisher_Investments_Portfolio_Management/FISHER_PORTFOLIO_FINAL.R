@@ -3,7 +3,8 @@
 library(quantmod) 
 library(dplyr)
 
-#Selecting the top 25 stock of the portfolio (weight 49% of the entire pf)
+#Selecting the top stocks of the portfolio (weight 49% of the entire pf).
+#The analysis uses the top 10; the other 15 are commented out.
 
 stock1_returns <- monthlyReturn(getSymbols("MSFT", auto.assign = F)) 
 stock2_returns <- monthlyReturn(getSymbols("AAPL", auto.assign = F))
@@ -63,10 +64,6 @@ stock8_sigma <- sd(joined_monthly_fisherpf$monthly.returns.7[time_index:(time_in
 stock9_sigma <- sd(joined_monthly_fisherpf$monthly.returns.8[time_index:(time_index-11)])*sqrt(12)
 stock10_sigma <- sd(joined_monthly_fisherpf$monthly.returns.9[time_index:(time_index-11)])*sqrt(12)
 
-#Let's calculate the sigma for the entire pf
-
-pf_sigma <- sd(joined_monthly_fisherpf$portfolio_ret[time_index:(time_index-11)])*sqrt(12) 
-
 #Now we set the risk free rate as discussed in class
 
 Risk_Free <- 0.0001
@@ -104,6 +101,10 @@ joined_monthly_fisherpf <- as.data.frame(joined_monthly_fisherpf) %>%
            stock9_w * monthly.returns.8 + stock10_w * monthly.returns.9)
 
 Pf_exp <- mean(joined_monthly_fisherpf$portfolio_ret[time_index:(time_index-11)]) 
+
+#Let's calculate the sigma for the entire pf (after portfolio_ret exists)
+
+pf_sigma <- sd(joined_monthly_fisherpf$portfolio_ret[time_index:(time_index-11)])*sqrt(12) 
                
 # Now let's calculate Sharpe Ratio 
 
@@ -165,7 +166,7 @@ Overview <- data.frame(
   Sigma = c(stock1_sigma, stock2_sigma, stock3_sigma, stock4_sigma, stock5_sigma, stock6_sigma, stock7_sigma, 
             stock8_sigma, stock9_sigma, stock10_sigma, Benchmark_sigma, pf_sigma),
   Tracking_Error = c(s1_te, s2_te, s3_te, s4_te, s5_te, s6_te, s7_te, s8_te, s9_te, s10_te, 
-                     "N/A", "N/A"),
+                     NA, NA),
   Sharpe_Ratio = c(s1_Sharpe, s2_Sharpe, s3_Sharpe, s4_Sharpe, s5_Sharpe, s6_Sharpe, s7_Sharpe, s8_Sharpe, s9_Sharpe, 
                    s10_Sharpe, Benchmark_Sharpe, pf_sharpe)
 )
@@ -443,7 +444,9 @@ ggplot() +
 
 #library(plotly)
 #Fama French Model
-source("C://Users//Mi//Desktop//My Files//1-MBAN//Summer II//Wealth Management//Classes//8.2 Fama French predictions and residuals - source this file before running the next one.R")
+# This section needs the course's Fama French helper script (fama_french_3F_pred_res),
+# which is not included in this repo. Put it next to this script to run the section.
+source("fama_french_3F_pred_res.R")
 #calling the Fama French 3F model UDF for NVDA
 NVDA_FF3F <- fama_french_3F_pred_res(ticker="NVDA", from_date='2020-01-02', to_date='2024-07-01')
 NVDA_FF3F$actuals

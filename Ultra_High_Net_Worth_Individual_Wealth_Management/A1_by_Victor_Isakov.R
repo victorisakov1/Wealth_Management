@@ -332,9 +332,9 @@ for (i in 1:(ncol(pricinglist))){
 }
 
 
-#forecasting the next price using a backpropagation training algorithm in a neural network. 
-# a Autoregressive Model of fourth order AR4 was used.
-#those weight will give you the highest sharpe ratio 
+#The expected return for each asset is its most recent 25-trading-day log return,
+#and the covariance uses the last 6 months. The solver below looks for the weights
+#with the highest Sharpe ratio.
 newpricingdataset <- pricinglist
 
 
@@ -418,7 +418,6 @@ maxSharpe <- function(averet, rcov, shorts=F, wmax=0.2, min.weight=0.01)
   xmin <- optimize(f=optim.callback, interval = c(lowerinterval, upper=upperinterval), 
                    averet=averet, rcov=rcov, reshigh=reshigh, reslow=reslow, shorts=shorts)
   return(w)
-  return(xmin)
 }
 
 z <- maxSharpe(averet, rcov, shorts=F, wmax=0.5)
@@ -638,7 +637,9 @@ summary(GLD_reg)
 
 
 #Fama French Model
-source("C://Users//Mi//Desktop//My Files//1-MBAN//Summer II//Wealth Management//Classes//8.2 Fama French predictions and residuals - source this file before running the next one.R")
+# This section needs the course's Fama French helper script (fama_french_3F_pred_res),
+# which is not included in this repo. Put it next to this script to run the section.
+source("fama_french_3F_pred_res.R")
 
 
 #calling the Fama French 3F model UDF for IXN
