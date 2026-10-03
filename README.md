@@ -29,6 +29,20 @@ The notebook downloads its price data from GitHub, so it needs an internet conne
 `install.packages()`. The scripts download prices from Yahoo Finance through quantmod, so results
 change as new data comes in.
 
+## Corrections after submission
+
+The code was reviewed and corrected in October 2026, so some numbers differ from the submitted
+reports:
+
+- **UHNW script:** the maximum-Sharpe solver was searching for the minimum (missing minus sign).
+  Questions 1-4 now use the original weights their notes describe, and the re-balanced portfolio
+  is calculated separately after Question 5.
+- **Fisher script:** portfolio risk is now calculated after the portfolio returns exist (it was
+  blank before), and the CAPM betas use the last 12 months, like the other metrics.
+- **Both R scripts:** prices stop at the report dates (July 2024), so results match the notes.
+- **AI notebook:** the description now says the optimizer finds the lowest-risk portfolio. It
+  never used expected returns.
+
 ## License
 
 Licensed under the [Apache License 2.0](LICENSE).

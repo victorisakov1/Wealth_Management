@@ -23,15 +23,18 @@ library(quadprog)
 library(tseries)
 library(stats)
 
+# Prices stop at the report date so results match the notes
+end_date <- "2024-07-13"
+
 
 
 
 #Getting Data for required asset tickers
-s1_returns <- monthlyReturn(getSymbols("IXN", auto.assign = F)) 
-s2_returns <- monthlyReturn(getSymbols("QQQ", auto.assign = F))
-s3_returns <- monthlyReturn(getSymbols("IEF", auto.assign = F))
-s4_returns <- monthlyReturn(getSymbols("VNQ", auto.assign = F))
-s5_returns <- monthlyReturn(getSymbols("GLD", auto.assign = F))
+s1_returns <- monthlyReturn(getSymbols("IXN", auto.assign = F, to = end_date)) 
+s2_returns <- monthlyReturn(getSymbols("QQQ", auto.assign = F, to = end_date))
+s3_returns <- monthlyReturn(getSymbols("IEF", auto.assign = F, to = end_date))
+s4_returns <- monthlyReturn(getSymbols("VNQ", auto.assign = F, to = end_date))
+s5_returns <- monthlyReturn(getSymbols("GLD", auto.assign = F, to = end_date))
 
 
 
@@ -44,7 +47,7 @@ joined_monthly <- merge.xts(s1_returns,
                             s5_returns)
 
 #Benchmark
-bnchmrk_returns <- monthlyReturn(getSymbols("VONE", auto.assign = F))
+bnchmrk_returns <- monthlyReturn(getSymbols("VONE", auto.assign = F, to = end_date))
 
 joined_monthly <- merge.xts(joined_monthly,
                             bnchmrk_returns)
@@ -65,21 +68,12 @@ time_index <- nrow(joined_monthly)
 
 #Establishing % allocation of each asset (weight)
 
-#Original Weights
-#s1_w <- 0.175
-#s2_w <- 0.221
-#s3_w <- 0.285
-#s4_w <- 0.089
-#s5_w <- 0.23
-
-
-
-#Suggested Weights for better performance
-s1_w <- 0.03828932      
-s2_w <- 0.50000000      
-s3_w <- 0  
-s4_w <- 0
-s5_w <- 0.46171068  
+#Original Weights (Questions 1-4 use these; the re-balanced weights come after Question 5)
+s1_w <- 0.175
+s2_w <- 0.221
+s3_w <- 0.285
+s4_w <- 0.089
+s5_w <- 0.23
 
 
 
@@ -316,7 +310,6 @@ print(pf_sharpe)
 
 
 
-enddate <- "2024-7-13"
 t<-1985 
 myvector <- c()
 nstocks <- 3
@@ -327,7 +320,7 @@ colnames(pricinglist) <- c("IXN", "QQQ", "GLD")
 #the pricinglist data starts form 2016-8-22 - this is the first row
 for (i in 1:(ncol(pricinglist))){
   current_ticker <- colnames(pricinglist)[i]
-  newtable <- getSymbols(current_ticker, src = "yahoo", from="2016-8-22", to=enddate, auto.assign=FALSE)
+  newtable <- getSymbols(current_ticker, src = "yahoo", from="2016-8-22", to = end_date, auto.assign = FALSE)
   pricinglist[,i] <- newtable[,6]
 }
 
@@ -397,7 +390,7 @@ maxSharpe <- function(averet, rcov, shorts=F, wmax=0.2, min.weight=0.01)
     {
       m.return <- averet %*% port.sol$pw
       m.risk <- sqrt(as.vector(port.sol$pw %*% rcov %*% port.sol$pw))
-      ratio <- m.return/m.risk
+      ratio <- -m.return/m.risk  # negative, because optimize() minimizes
       assign("w", port.sol$pw, inherits=T)
     }
     return(ratio)
@@ -423,6 +416,23 @@ maxSharpe <- function(averet, rcov, shorts=F, wmax=0.2, min.weight=0.01)
 z <- maxSharpe(averet, rcov, shorts=F, wmax=0.5)
 
 print(z)
+
+
+#Re-balanced portfolio: solver weights for IXN, QQQ and GLD; IEF and VNQ are dropped
+#(the submitted report used 3.8% IXN, 50% QQQ, 46.2% GLD)
+new_w <- c(IXN = z[1], QQQ = z[2], GLD = z[3])
+
+rebalanced_ret <- new_w["IXN"] * joined_monthly$monthly.returns +
+                  new_w["QQQ"] * joined_monthly$monthly.returns.1 +
+                  new_w["GLD"] * joined_monthly$monthly.returns.4
+
+pf_exp_new <- mean(rebalanced_ret[time_index:(time_index-11)])
+pf_sigma_new <- sd(rebalanced_ret[time_index:(time_index-11)])*sqrt(12)
+pf_sharpe_new <- (((1+pf_exp_new)^12)-1 - risk_free)/pf_sigma_new
+
+print(pf_exp_new*100)
+print(pf_sigma_new*100)
+print(pf_sharpe_new)
 
 
 #> After Re-balancing the Portfolio, changing weights, and practically removing
@@ -453,9 +463,9 @@ ticker2_select <- "QQQ"
 ticker3_select <- "GLD"
 
 
-mydf1 <- as.data.frame(monthlyReturn(getSymbols(ticker1_select, auto.assign=FALSE)))
-mydf2 <- as.data.frame(monthlyReturn(getSymbols(ticker2_select, auto.assign=FALSE)))
-mydf3 <- as.data.frame(monthlyReturn(getSymbols(ticker3_select, auto.assign=FALSE)))
+mydf1 <- as.data.frame(monthlyReturn(getSymbols(ticker1_select, auto.assign = FALSE, to = end_date)))
+mydf2 <- as.data.frame(monthlyReturn(getSymbols(ticker2_select, auto.assign = FALSE, to = end_date)))
+mydf3 <- as.data.frame(monthlyReturn(getSymbols(ticker3_select, auto.assign = FALSE, to = end_date)))
 
 
 combined_df <- cbind(mydf1[,1], mydf2[,1], mydf3[,1])
