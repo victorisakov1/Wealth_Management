@@ -3,33 +3,37 @@
 library(quantmod) 
 library(dplyr)
 
-#Selecting the top 25 stock of the portfolio (weight 49% of the entire pf)
+# Prices stop at the end of the analysis period so results match the notes
+end_date <- "2024-07-01"
 
-stock1_returns <- monthlyReturn(getSymbols("MSFT", auto.assign = F)) 
-stock2_returns <- monthlyReturn(getSymbols("AAPL", auto.assign = F))
-stock3_returns <- monthlyReturn(getSymbols("NVDA", auto.assign = F))
-stock4_returns <- monthlyReturn(getSymbols("AMZN", auto.assign = F))
-stock5_returns <- monthlyReturn(getSymbols("GOOGL", auto.assign = F))
-stock6_returns <- monthlyReturn(getSymbols("VCIT", auto.assign = F))
-stock7_returns <- monthlyReturn(getSymbols("AMD", auto.assign = F))
-stock8_returns <- monthlyReturn(getSymbols("TSM", auto.assign = F))
-stock9_returns <- monthlyReturn(getSymbols("LLY", auto.assign = F))
-stock10_returns <- monthlyReturn(getSymbols("HD", auto.assign = F))
-#stock11_returns <- monthlyReturn(getSymbols("CRM", auto.assign = F))
-#stock12_returns <- monthlyReturn(getSymbols("XOM", auto.assign = F)) 
-#stock13_returns <- monthlyReturn(getSymbols("CAT", auto.assign = F))
-#stock14_returns <- monthlyReturn(getSymbols("ASML", auto.assign = F))
-#stock15_returns <- monthlyReturn(getSymbols("AVGO", auto.assign = F))
-#stock16_returns <- monthlyReturn(getSymbols("CVX", auto.assign = F))
-#stock17_returns <- monthlyReturn(getSymbols("META", auto.assign = F))
-#stock18_returns <- monthlyReturn(getSymbols("PG", auto.assign = F))
-#stock19_returns <- monthlyReturn(getSymbols("FCX", auto.assign = F))
-#stock20_returns <- monthlyReturn(getSymbols("WMT", auto.assign = F))
-#stock21_returns <- monthlyReturn(getSymbols("V", auto.assign = F))
-#stock22_returns <- monthlyReturn(getSymbols("JPM", auto.assign = F))
-#stock23_returns <- monthlyReturn(getSymbols("GS", auto.assign = F))
-#stock24_returns <- monthlyReturn(getSymbols("ADBE", auto.assign = F)) 
-#stock25_returns <- monthlyReturn(getSymbols("ORCL", auto.assign = F))
+#Selecting the top stocks of the portfolio (weight 49% of the entire pf).
+#The analysis uses the top 10; the other 15 are commented out.
+
+stock1_returns <- monthlyReturn(getSymbols("MSFT", auto.assign = F, to = end_date)) 
+stock2_returns <- monthlyReturn(getSymbols("AAPL", auto.assign = F, to = end_date))
+stock3_returns <- monthlyReturn(getSymbols("NVDA", auto.assign = F, to = end_date))
+stock4_returns <- monthlyReturn(getSymbols("AMZN", auto.assign = F, to = end_date))
+stock5_returns <- monthlyReturn(getSymbols("GOOGL", auto.assign = F, to = end_date))
+stock6_returns <- monthlyReturn(getSymbols("VCIT", auto.assign = F, to = end_date))
+stock7_returns <- monthlyReturn(getSymbols("AMD", auto.assign = F, to = end_date))
+stock8_returns <- monthlyReturn(getSymbols("TSM", auto.assign = F, to = end_date))
+stock9_returns <- monthlyReturn(getSymbols("LLY", auto.assign = F, to = end_date))
+stock10_returns <- monthlyReturn(getSymbols("HD", auto.assign = F, to = end_date))
+#stock11_returns <- monthlyReturn(getSymbols("CRM", auto.assign = F, to = end_date))
+#stock12_returns <- monthlyReturn(getSymbols("XOM", auto.assign = F, to = end_date)) 
+#stock13_returns <- monthlyReturn(getSymbols("CAT", auto.assign = F, to = end_date))
+#stock14_returns <- monthlyReturn(getSymbols("ASML", auto.assign = F, to = end_date))
+#stock15_returns <- monthlyReturn(getSymbols("AVGO", auto.assign = F, to = end_date))
+#stock16_returns <- monthlyReturn(getSymbols("CVX", auto.assign = F, to = end_date))
+#stock17_returns <- monthlyReturn(getSymbols("META", auto.assign = F, to = end_date))
+#stock18_returns <- monthlyReturn(getSymbols("PG", auto.assign = F, to = end_date))
+#stock19_returns <- monthlyReturn(getSymbols("FCX", auto.assign = F, to = end_date))
+#stock20_returns <- monthlyReturn(getSymbols("WMT", auto.assign = F, to = end_date))
+#stock21_returns <- monthlyReturn(getSymbols("V", auto.assign = F, to = end_date))
+#stock22_returns <- monthlyReturn(getSymbols("JPM", auto.assign = F, to = end_date))
+#stock23_returns <- monthlyReturn(getSymbols("GS", auto.assign = F, to = end_date))
+#stock24_returns <- monthlyReturn(getSymbols("ADBE", auto.assign = F, to = end_date)) 
+#stock25_returns <- monthlyReturn(getSymbols("ORCL", auto.assign = F, to = end_date))
 
 #Let's  merge all these stocks return
 
@@ -62,10 +66,6 @@ stock7_sigma <- sd(joined_monthly_fisherpf$monthly.returns.6[time_index:(time_in
 stock8_sigma <- sd(joined_monthly_fisherpf$monthly.returns.7[time_index:(time_index-11)])*sqrt(12)
 stock9_sigma <- sd(joined_monthly_fisherpf$monthly.returns.8[time_index:(time_index-11)])*sqrt(12)
 stock10_sigma <- sd(joined_monthly_fisherpf$monthly.returns.9[time_index:(time_index-11)])*sqrt(12)
-
-#Let's calculate the sigma for the entire pf
-
-pf_sigma <- sd(joined_monthly_fisherpf$portfolio_ret[time_index:(time_index-11)])*sqrt(12) 
 
 #Now we set the risk free rate as discussed in class
 
@@ -104,6 +104,10 @@ joined_monthly_fisherpf <- as.data.frame(joined_monthly_fisherpf) %>%
            stock9_w * monthly.returns.8 + stock10_w * monthly.returns.9)
 
 Pf_exp <- mean(joined_monthly_fisherpf$portfolio_ret[time_index:(time_index-11)]) 
+
+#Let's calculate the sigma for the entire pf (after portfolio_ret exists)
+
+pf_sigma <- sd(joined_monthly_fisherpf$portfolio_ret[time_index:(time_index-11)])*sqrt(12) 
                
 # Now let's calculate Sharpe Ratio 
 
@@ -126,33 +130,34 @@ pf_sharpe <- (((1+Pf_exp)^12)-1 - Risk_Free)/pf_sigma
 
 # in order to do this we need a benchmark that would be the NASDAQ 
 
-Benchmark_returns <- monthlyReturn(getSymbols("^IXIC", auto.assign = F))
-Benchmark_sigma <- sd(monthlyReturn(getSymbols("^IXIC", auto.assign = F))[time_index:(time_index-11)])*sqrt(12) 
+# Download the benchmark once and reuse it below
+Benchmark_returns <- monthlyReturn(getSymbols("^IXIC", auto.assign = F, to = end_date))
+Benchmark_sigma <- sd(Benchmark_returns[time_index:(time_index-11)])*sqrt(12) 
 
-Benchmark_Exp <- mean(monthlyReturn(getSymbols("^IXIC", auto.assign = F))[time_index:(time_index-11)])
+Benchmark_Exp <- mean(Benchmark_returns[time_index:(time_index-11)])
 Benchmark_Sharpe <-(((1+Benchmark_Exp)^12)-1 - Risk_Free)/Benchmark_sigma
 #te
 
 s1_te <- sd(joined_monthly_fisherpf$monthly.returns[time_index:(time_index-11)]
-             - monthlyReturn(getSymbols("^IXIC", auto.assign = F))[time_index:(time_index-11)]) * sqrt(12)
+             - Benchmark_returns[time_index:(time_index-11)]) * sqrt(12)
 s2_te <- sd(joined_monthly_fisherpf$monthly.returns.1[time_index:(time_index-11)]
-            - monthlyReturn(getSymbols("^IXIC", auto.assign = F))[time_index:(time_index-11)]) * sqrt(12)
+            - Benchmark_returns[time_index:(time_index-11)]) * sqrt(12)
 s3_te <- sd(joined_monthly_fisherpf$monthly.returns.2[time_index:(time_index-11)]
-            - monthlyReturn(getSymbols("^IXIC", auto.assign = F))[time_index:(time_index-11)]) * sqrt(12)
+            - Benchmark_returns[time_index:(time_index-11)]) * sqrt(12)
 s4_te <- sd(joined_monthly_fisherpf$monthly.returns.3[time_index:(time_index-11)]
-            - monthlyReturn(getSymbols("^IXIC", auto.assign = F))[time_index:(time_index-11)]) * sqrt(12)
+            - Benchmark_returns[time_index:(time_index-11)]) * sqrt(12)
 s5_te <- sd(joined_monthly_fisherpf$monthly.returns.4[time_index:(time_index-11)]
-            - monthlyReturn(getSymbols("^IXIC", auto.assign = F))[time_index:(time_index-11)]) * sqrt(12)
+            - Benchmark_returns[time_index:(time_index-11)]) * sqrt(12)
 s6_te <- sd(joined_monthly_fisherpf$monthly.returns.5[time_index:(time_index-11)]
-               - monthlyReturn(getSymbols("^IXIC", auto.assign = F))[time_index:(time_index-11)]) * sqrt(12)
+               - Benchmark_returns[time_index:(time_index-11)]) * sqrt(12)
 s7_te <- sd(joined_monthly_fisherpf$monthly.returns.6[time_index:(time_index-11)]
-           - monthlyReturn(getSymbols("^IXIC", auto.assign = F))[time_index:(time_index-11)]) * sqrt(12)
+           - Benchmark_returns[time_index:(time_index-11)]) * sqrt(12)
 s8_te <- sd(joined_monthly_fisherpf$monthly.returns.7[time_index:(time_index-11)]
-            - monthlyReturn(getSymbols("^IXIC", auto.assign = F))[time_index:(time_index-11)]) * sqrt(12)
+            - Benchmark_returns[time_index:(time_index-11)]) * sqrt(12)
 s9_te <- sd(joined_monthly_fisherpf$monthly.returns.8[time_index:(time_index-11)]
-            - monthlyReturn(getSymbols("^IXIC", auto.assign = F))[time_index:(time_index-11)]) * sqrt(12)
+            - Benchmark_returns[time_index:(time_index-11)]) * sqrt(12)
 s10_te <- sd(joined_monthly_fisherpf$monthly.returns.9[time_index:(time_index-11)]
-             - monthlyReturn(getSymbols("^IXIC", auto.assign = F))[time_index:(time_index-11)]) * sqrt(12)
+             - Benchmark_returns[time_index:(time_index-11)]) * sqrt(12)
 
 # Let's visualize everything in a table
 
@@ -164,7 +169,7 @@ Overview <- data.frame(
   Sigma = c(stock1_sigma, stock2_sigma, stock3_sigma, stock4_sigma, stock5_sigma, stock6_sigma, stock7_sigma, 
             stock8_sigma, stock9_sigma, stock10_sigma, Benchmark_sigma, pf_sigma),
   Tracking_Error = c(s1_te, s2_te, s3_te, s4_te, s5_te, s6_te, s7_te, s8_te, s9_te, s10_te, 
-                     "N/A", "N/A"),
+                     NA, NA),
   Sharpe_Ratio = c(s1_Sharpe, s2_Sharpe, s3_Sharpe, s4_Sharpe, s5_Sharpe, s6_Sharpe, s7_Sharpe, s8_Sharpe, s9_Sharpe, 
                    s10_Sharpe, Benchmark_Sharpe, pf_sharpe)
 )
@@ -211,64 +216,65 @@ correlations_fisher <- as.data.frame(cor(joined_monthly_fisherpf[time_index:(tim
 #let's build a CAPM model for the assets in Fisher's pf
 
 last_12_months <- joined_monthly_fisherpf[time_index:(time_index-11),]
+last_12_months$benchmark <- as.numeric(Benchmark_returns[time_index:(time_index-11)])
 
 #MSFT
 
-stock1_reg <- lm(joined_monthly_fisherpf$monthly.returns~Benchmark_returns$monthly.returns, data=last_12_months) 
+stock1_reg <- lm(monthly.returns ~ benchmark, data=last_12_months) 
 
 summary(stock1_reg)
 
 #AAPL
 
-stock2_reg <- lm(joined_monthly_fisherpf$monthly.returns.1~Benchmark_returns$monthly.returns, data=last_12_months) 
+stock2_reg <- lm(monthly.returns.1 ~ benchmark, data=last_12_months) 
 
 summary(stock2_reg)
 
 #NVDA
 
-stock3_reg <- lm(joined_monthly_fisherpf$monthly.returns.2~Benchmark_returns$monthly.returns, data=last_12_months) 
+stock3_reg <- lm(monthly.returns.2 ~ benchmark, data=last_12_months) 
 
 summary(stock3_reg)
 
 #AMZN
 
-stock4_reg <- lm(joined_monthly_fisherpf$monthly.returns.3~Benchmark_returns$monthly.returns, data=last_12_months) 
+stock4_reg <- lm(monthly.returns.3 ~ benchmark, data=last_12_months) 
 
 summary(stock4_reg)
 
 #GOOGL
 
-stock5_reg <- lm(joined_monthly_fisherpf$monthly.returns.4~Benchmark_returns$monthly.returns, data=last_12_months) 
+stock5_reg <- lm(monthly.returns.4 ~ benchmark, data=last_12_months) 
 
 summary(stock5_reg)
 
 #VCIT #Rsqr 26.. 
 
-stock6_reg <- lm(joined_monthly_fisherpf$monthly.returns.5~Benchmark_returns$monthly.returns, data=last_12_months) 
+stock6_reg <- lm(monthly.returns.5 ~ benchmark, data=last_12_months) 
 
 summary(stock6_reg)
 
 #AMD 
 
-stock7_reg <- lm(joined_monthly_fisherpf$monthly.returns.6~Benchmark_returns$monthly.returns, data=last_12_months) 
+stock7_reg <- lm(monthly.returns.6 ~ benchmark, data=last_12_months) 
 
 summary(stock7_reg)
 
 #TSM
 
-stock8_reg <- lm(joined_monthly_fisherpf$monthly.returns.7~Benchmark_returns$monthly.returns, data=last_12_months) 
+stock8_reg <- lm(monthly.returns.7 ~ benchmark, data=last_12_months) 
 
 summary(stock8_reg)
 
 #LLY #Rsquared 0.1 
 
-stock9_reg <- lm(joined_monthly_fisherpf$monthly.returns.8~Benchmark_returns$monthly.returns, data=last_12_months) 
+stock9_reg <- lm(monthly.returns.8 ~ benchmark, data=last_12_months) 
 
 summary(stock9_reg)
 
 #HD 
 
-stock10_reg <- lm(joined_monthly_fisherpf$monthly.returns.9~Benchmark_returns$monthly.returns, data=last_12_months) 
+stock10_reg <- lm(monthly.returns.9 ~ benchmark, data=last_12_months) 
 
 summary(stock10_reg)
 
@@ -324,9 +330,9 @@ library(reshape2)
 ticker1 <- "NVDA"
 ticker2<- "TSM"
 ticker3<- "LLY"
-mydf1 <- as.data.frame(getSymbols(ticker1, auto.assign=FALSE))
-mydf2 <- as.data.frame(getSymbols(ticker2, auto.assign=FALSE))
-mydf3 <- as.data.frame(getSymbols(ticker3, auto.assign=FALSE))
+mydf1 <- as.data.frame(getSymbols(ticker1, auto.assign = FALSE, to = end_date))
+mydf2 <- as.data.frame(getSymbols(ticker2, auto.assign = FALSE, to = end_date))
+mydf3 <- as.data.frame(getSymbols(ticker3, auto.assign = FALSE, to = end_date))
 
 combined_df <- cbind(mydf1[,4], mydf2[,4], mydf3[,4])
 
@@ -374,9 +380,9 @@ ticker1_select <- "NVDA" #which of the 3 do you want to use
 ticker2_select <- "TSM"
 ticker3_select <- "LLY"
 
-mydf1 <- as.data.frame(monthlyReturn(getSymbols(ticker1_select, auto.assign=FALSE)))
-mydf2 <- as.data.frame(monthlyReturn(getSymbols(ticker2_select, auto.assign=FALSE)))
-mydf3 <- as.data.frame(monthlyReturn(getSymbols(ticker3_select, auto.assign=FALSE)))
+mydf1 <- as.data.frame(monthlyReturn(getSymbols(ticker1_select, auto.assign = FALSE, to = end_date)))
+mydf2 <- as.data.frame(monthlyReturn(getSymbols(ticker2_select, auto.assign = FALSE, to = end_date)))
+mydf3 <- as.data.frame(monthlyReturn(getSymbols(ticker3_select, auto.assign = FALSE, to = end_date)))
 
 
 combined_df <- cbind(mydf1[,1], mydf2[,1], mydf3[,1])
@@ -442,7 +448,9 @@ ggplot() +
 
 #library(plotly)
 #Fama French Model
-source("C://Users//Mi//Desktop//My Files//1-MBAN//Summer II//Wealth Management//Classes//8.2 Fama French predictions and residuals - source this file before running the next one.R")
+# This section needs the course's Fama French helper script (fama_french_3F_pred_res),
+# which is not included in this repo. Put it next to this script to run the section.
+source("fama_french_3F_pred_res.R")
 #calling the Fama French 3F model UDF for NVDA
 NVDA_FF3F <- fama_french_3F_pred_res(ticker="NVDA", from_date='2020-01-02', to_date='2024-07-01')
 NVDA_FF3F$actuals
